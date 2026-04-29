@@ -106,11 +106,13 @@ async function handleCheckoutPaid(checkoutSessionId: string) {
   if (!customerId && user) {
     const fullName = (user.name ?? "Danica User").trim()
     const [firstName, ...rest] = fullName.split(/\s+/)
+    // PayMongo requires phone ≤ 13 chars in E.164 format (no spaces)
+    const phoneE164 = user.phone?.replace(/\s+/g, "").slice(0, 13) || undefined
     const created = await paymongo.createCustomer({
       firstName: firstName || "Danica",
       lastName: rest.join(" ") || "User",
       email: user.email,
-      phone: user.phone ?? undefined,
+      phone: phoneE164,
     })
     customerId = created.id
     await db.update(users).set({ paymongoCustomerId: customerId }).where(eq(users.id, user.id))
