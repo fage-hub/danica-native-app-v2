@@ -41,19 +41,19 @@ export function PackageComparisonDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="text-xl">
+      <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col gap-3 p-4 sm:p-6">
+        <DialogHeader className="space-y-1 pr-8">
+          <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
             {language === 'en' ? 'Package Comparison' : '套餐对比'}
           </DialogTitle>
-          <DialogDescription>
-            {language === 'en' 
+          <DialogDescription className="text-sm text-muted-foreground">
+            {language === 'en'
               ? 'Compare features and pricing across different packages'
               : '比较不同套餐的功能和价格'}
           </DialogDescription>
         </DialogHeader>
-        
-        <ScrollArea className="h-[60vh] pr-4">
+
+        <ScrollArea className="flex-1 min-h-0 -mx-1 px-1">
           <div className="relative overflow-x-auto">
             <table className="w-full border-collapse">
               <thead className="sticky top-0 bg-background z-10">
