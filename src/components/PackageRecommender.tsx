@@ -286,9 +286,9 @@ Only recommend packages that exist in the list above. Focus on matching the user
                       )}
                     </div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-primary">${recommendation.price}</span>
+                      <span className="text-3xl font-bold text-primary">₱{recommendation.price}</span>
                       <span className="text-muted-foreground text-sm">
-                        {language === 'en' ? 'USD' : '美元'}
+                        PHP
                       </span>
                     </div>
                     <CardDescription className="mt-1">
@@ -413,9 +413,9 @@ Only recommend packages that exist in the list above. Focus on matching the user
                           )}
                         </div>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-bold text-primary">${pkg.price}</span>
+                          <span className="text-3xl font-bold text-primary">₱{pkg.price}</span>
                           <span className="text-muted-foreground text-sm">
-                            {language === 'en' ? 'USD' : '美元'}
+                            PHP
                           </span>
                         </div>
                         <CardDescription className="mt-1">

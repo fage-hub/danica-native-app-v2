@@ -530,8 +530,8 @@ export function ServiceBundleDialog({ open, onOpenChange, onPurchase }: ServiceB
                           </Badge>
                         </div>
                         <div className="flex items-baseline gap-2 mt-3">
-                          <span className="text-3xl font-bold text-foreground">${bundle.price}</span>
-                          <span className="text-sm text-muted-foreground line-through">${bundle.originalPrice}</span>
+                          <span className="text-3xl font-bold text-foreground">₱{bundle.price}</span>
+                          <span className="text-sm text-muted-foreground line-through">₱{bundle.originalPrice}</span>
                           <span className="text-sm text-muted-foreground">/ {language === 'en' ? 'month' : '月'}</span>
                         </div>
                         {bundle.tokensIncluded && (
@@ -620,8 +620,8 @@ export function ServiceBundleDialog({ open, onOpenChange, onPurchase }: ServiceB
                           </Badge>
                         </div>
                         <div className="flex items-baseline gap-2 mt-3">
-                          <span className="text-3xl font-bold text-foreground">${bundle.price}</span>
-                          <span className="text-sm text-muted-foreground line-through">${bundle.originalPrice}</span>
+                          <span className="text-3xl font-bold text-foreground">₱{bundle.price}</span>
+                          <span className="text-sm text-muted-foreground line-through">₱{bundle.originalPrice}</span>
                           <span className="text-sm text-muted-foreground">/ {language === 'en' ? 'month' : '月'}</span>
                         </div>
                         {bundle.tokensIncluded && (
@@ -704,8 +704,8 @@ export function ServiceBundleDialog({ open, onOpenChange, onPurchase }: ServiceB
                           </Badge>
                         </div>
                         <div className="flex items-baseline gap-2 mt-3">
-                          <span className="text-3xl font-bold text-foreground">${bundle.price}</span>
-                          <span className="text-sm text-muted-foreground line-through">${bundle.originalPrice}</span>
+                          <span className="text-3xl font-bold text-foreground">₱{bundle.price}</span>
+                          <span className="text-sm text-muted-foreground line-through">₱{bundle.originalPrice}</span>
                           <span className="text-sm text-muted-foreground">/ {language === 'en' ? 'month' : '月'}</span>
                         </div>
                         {bundle.tokensIncluded && (

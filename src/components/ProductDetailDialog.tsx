@@ -362,7 +362,7 @@ export function ProductDetailDialog({ productKey, open, onOpenChange }: ProductD
                           <CardTitle className="capitalize">{tier}</CardTitle>
                           <div className="mt-4">
                             <div className="flex items-baseline gap-1">
-                              <span className="text-3xl font-bold">${price}</span>
+                              <span className="text-3xl font-bold">₱{price}</span>
                               <span className="text-muted-foreground text-sm">
                                 /{isYearly ? (language === 'en' ? 'year' : '年') : (language === 'en' ? 'month' : '月')}
                               </span>

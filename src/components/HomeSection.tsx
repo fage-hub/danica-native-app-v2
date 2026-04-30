@@ -410,9 +410,9 @@ export function HomeSection() {
                         <item.icon size={28} weight="duotone" className={item.color} />
                       </motion.div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1.5">
                           <p className="font-semibold text-sm sm:text-base leading-tight">{product.label}</p>
-                          <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-secondary/80">
+                          <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-secondary/80 shrink-0">
                             {status}
                           </Badge>
                         </div>
@@ -490,10 +490,10 @@ export function HomeSection() {
                   handleMemberClick(memberData.name)
                 }}
               >
-                <Card className={`cursor-pointer hover:shadow-md transition-all touch-manipulation ${
+                <Card className={`cursor-pointer hover:shadow-md transition-all touch-manipulation h-full flex flex-col ${
                   selectedMember === memberData.name ? 'ring-2 ring-accent' : ''
                 }`}>
-                  <CardHeader className="text-center pb-4 p-5">
+                  <CardHeader className="text-center pb-4 p-5 flex-1 flex flex-col">
                     <div className="flex justify-center mb-3">
                       <Avatar className="h-20 w-20 border-2 border-accent">
                         <AvatarFallback className="bg-accent/10 text-accent font-semibold text-xl">
@@ -503,7 +503,7 @@ export function HomeSection() {
                     </div>
                     <CardTitle className="text-base">{memberData.name}</CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">{memberData.role}</p>
-                    <Badge variant="secondary" className="mt-2 text-[10px]">
+                    <Badge variant="secondary" className="mt-2 text-[10px] mx-auto">
                       {memberData.expertise}
                     </Badge>
                   </CardHeader>

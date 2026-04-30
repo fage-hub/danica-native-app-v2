@@ -765,8 +765,8 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                           {bundle.description[language]}
                         </CardDescription>
                         <div className="flex items-baseline gap-2 mt-3">
-                          <span className="text-2xl font-bold text-foreground">${bundle.price}</span>
-                          <span className="text-xs text-muted-foreground line-through">${bundle.originalPrice}</span>
+                          <span className="text-2xl font-bold text-foreground">₱{bundle.price}</span>
+                          <span className="text-xs text-muted-foreground line-through">₱{bundle.originalPrice}</span>
                           <span className="text-xs text-muted-foreground">/ {language === 'en' ? 'mo' : '月'}</span>
                         </div>
                         {bundle.tokensIncluded && (
@@ -837,8 +837,8 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                           {bundle.description[language]}
                         </CardDescription>
                         <div className="flex items-baseline gap-2 mt-3">
-                          <span className="text-2xl font-bold text-foreground">${bundle.price}</span>
-                          <span className="text-xs text-muted-foreground line-through">${bundle.originalPrice}</span>
+                          <span className="text-2xl font-bold text-foreground">₱{bundle.price}</span>
+                          <span className="text-xs text-muted-foreground line-through">₱{bundle.originalPrice}</span>
                           <span className="text-xs text-muted-foreground">/ {language === 'en' ? 'mo' : '月'}</span>
                         </div>
                         {bundle.tokensIncluded && (
@@ -910,8 +910,8 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                             {bundle.description[language]}
                           </CardDescription>
                           <div className="flex items-baseline gap-2 mt-3">
-                            <span className="text-2xl font-bold text-foreground">${bundle.price}</span>
-                            <span className="text-xs text-muted-foreground line-through">${bundle.originalPrice}</span>
+                            <span className="text-2xl font-bold text-foreground">₱{bundle.price}</span>
+                            <span className="text-xs text-muted-foreground line-through">₱{bundle.originalPrice}</span>
                             <span className="text-xs text-muted-foreground">/ {language === 'en' ? 'mo' : '月'}</span>
                           </div>
                           {bundle.tokensIncluded && (
@@ -1072,9 +1072,9 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                         </CardTitle>
                         <CardDescription>
                           <div className="flex items-baseline gap-1 mt-2">
-                            <span className="text-3xl font-bold text-foreground">${pkg.price}</span>
+                            <span className="text-3xl font-bold text-foreground">₱{pkg.price}</span>
                             <span className="text-muted-foreground">
-                              {language === 'en' ? 'USD' : '美元'}
+                              PHP
                             </span>
                           </div>
                           <div className="text-xs mt-1 text-muted-foreground">
@@ -1151,9 +1151,9 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                         </CardTitle>
                         <CardDescription>
                           <div className="flex items-baseline gap-1 mt-2">
-                            <span className="text-3xl font-bold text-foreground">${pkg.price}</span>
+                            <span className="text-3xl font-bold text-foreground">₱{pkg.price}</span>
                             <span className="text-muted-foreground">
-                              {language === 'en' ? 'USD' : '美元'}
+                              PHP
                             </span>
                           </div>
                           <div className="text-xs mt-1 text-muted-foreground">
@@ -1231,9 +1231,9 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                           </CardTitle>
                           <CardDescription>
                             <div className="flex items-baseline gap-1 mt-2">
-                              <span className="text-2xl font-bold text-foreground">${pkg.price}</span>
+                              <span className="text-2xl font-bold text-foreground">₱{pkg.price}</span>
                               <span className="text-muted-foreground text-xs">
-                                {language === 'en' ? 'USD' : '美元'}
+                                PHP
                               </span>
                             </div>
                             <div className="text-xs mt-1 text-muted-foreground">

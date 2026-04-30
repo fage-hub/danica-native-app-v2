@@ -85,8 +85,8 @@ export function AnalyticsCard({ projects, invoices, tickets }: AnalyticsCardProp
               </div>
               <Progress value={budgetUtilization} className="h-2" />
               <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
-                <span>${totalSpent.toLocaleString()} {t.dashboard.analytics.spent}</span>
-                <span>${totalBudget.toLocaleString()} {t.dashboard.analytics.total}</span>
+                <span>₱{totalSpent.toLocaleString()} {t.dashboard.analytics.spent}</span>
+                <span>₱{totalBudget.toLocaleString()} {t.dashboard.analytics.total}</span>
               </div>
             </div>
           )}
@@ -100,7 +100,7 @@ export function AnalyticsCard({ projects, invoices, tickets }: AnalyticsCardProp
                 <CheckCircle size={16} weight="fill" className="text-green-500" />
                 <span className="text-xs font-medium text-muted-foreground">{t.dashboard.analytics.revenuePaid}</span>
               </div>
-              <p className="text-xl font-bold">${(paidRevenue / 1000).toFixed(1)}k</p>
+              <p className="text-xl font-bold">₱{(paidRevenue / 1000).toFixed(1)}k</p>
               <p className="text-xs text-muted-foreground">{paidInvoices.length} {t.dashboard.analytics.invoices}</p>
             </motion.div>
 
@@ -112,7 +112,7 @@ export function AnalyticsCard({ projects, invoices, tickets }: AnalyticsCardProp
                 <Clock size={16} weight="fill" className="text-yellow-500" />
                 <span className="text-xs font-medium text-muted-foreground">{t.dashboard.analytics.pending}</span>
               </div>
-              <p className="text-xl font-bold">${(pendingRevenue / 1000).toFixed(1)}k</p>
+              <p className="text-xl font-bold">₱{(pendingRevenue / 1000).toFixed(1)}k</p>
               <p className="text-xs text-muted-foreground">{invoices.length - paidInvoices.length} {t.dashboard.analytics.invoices}</p>
             </motion.div>
           </div>

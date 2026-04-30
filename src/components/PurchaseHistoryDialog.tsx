@@ -202,7 +202,7 @@ export function PurchaseHistoryDialog({ open, onOpenChange }: PurchaseHistoryDia
                                   </span>
                                 )}
                               </div>
-                              <span className="font-medium">${item.price.toFixed(2)}</span>
+                              <span className="font-medium">₱{item.price.toFixed(2)}</span>
                             </div>
                           ))}
                         </div>

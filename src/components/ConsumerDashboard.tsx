@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
 import {
@@ -85,14 +84,15 @@ type Product = {
   features: string[]
 }
 
-function formatPHP(centavos: number, currency = "PHP") {
-  return new Intl.NumberFormat("en-PH", { style: "currency", currency, minimumFractionDigits: 2 }).format(centavos / 100)
+function formatPHP(centavos: number, currency = "PHP", locale = "en-PH") {
+  return new Intl.NumberFormat(locale, { style: "currency", currency, minimumFractionDigits: 2 }).format(centavos / 100)
 }
 
 export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
   const { data: session } = useSession()
-  const { t } = useLanguage()
-  const router = useRouter()
+  const { t, language } = useLanguage()
+  const d = t.portal.dashboard
+  const locale = language === "zh" ? "zh-CN" : "en-PH"
   const [tab, setTab] = useState<"overview" | "products" | "usage" | "billing" | "api" | "support">("overview")
   const [overview, setOverview] = useState<Overview | null>(null)
   const [subs, setSubs] = useState<Subscription[]>([])
@@ -130,7 +130,7 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
     })
     if (!res.ok) {
       const { detail } = await res.json().catch(() => ({}))
-      toast.error("Checkout failed", { description: detail || "Please try again." })
+      toast.error(d.checkoutFailed, { description: detail || d.tryAgain })
       setBusy(null)
       return
     }
@@ -139,17 +139,31 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
   }
 
   async function cancelSub(id: string, name: string) {
-    if (!confirm(`Cancel subscription to ${name}?`)) return
+    if (!confirm(d.cancelConfirm.replace("{name}", name))) return
     const res = await fetch(`/api/subscriptions/${id}/cancel`, { method: "POST" })
     if (!res.ok) {
-      toast.error("Cancellation failed")
+      toast.error(d.cancelFailed)
       return
     }
-    toast.success("Subscription cancelled")
+    toast.success(d.cancelled)
     refresh()
   }
 
   const subscribed = new Set(subs.filter(s => s.status === "active").map(s => s.productId))
+
+  function statusLabel(s: string) {
+    if (s === "paid") return d.paid
+    if (s === "pending") return d.pending
+    if (s === "failed") return d.failed
+    return s
+  }
+
+  function statusClass(s: string) {
+    if (s === "paid" || s === "active") return "text-emerald-600"
+    if (s === "pending") return "text-amber-600"
+    if (s === "failed" || s === "past_due") return "text-destructive"
+    return "text-muted-foreground"
+  }
 
   return (
     <motion.div
@@ -158,16 +172,16 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
       transition={{ duration: 0.3 }}
       className="space-y-6 pb-24"
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {session?.user?.name ? `${session.user.name.split(" ")[0]}` : t.portal.welcomeBack}
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight truncate">
+            {session?.user?.name ? session.user.name.split(" ")[0] : t.portal.welcomeBack}
           </h1>
-          <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
+          <p className="text-sm text-muted-foreground truncate">{session?.user?.email}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={onLogout}>
+        <Button variant="outline" size="sm" onClick={onLogout} className="shrink-0">
           <SignOut size={16} className="mr-2" />
-          Sign out
+          {t.portal.signOut}
         </Button>
       </div>
 
@@ -175,61 +189,61 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
         <TabsList className="grid grid-cols-6 w-full h-auto p-1">
           <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
             <House size={16} weight={tab === "overview" ? "fill" : "regular"} />
-            <span>{t.dashboard?.overview ?? "Overview"}</span>
+            <span>{d.overview}</span>
           </TabsTrigger>
           <TabsTrigger value="products" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
             <Package size={16} weight={tab === "products" ? "fill" : "regular"} />
-            <span>{t.dashboard?.products ?? "Products"}</span>
+            <span>{d.products}</span>
           </TabsTrigger>
           <TabsTrigger value="usage" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
             <ChartLine size={16} weight={tab === "usage" ? "fill" : "regular"} />
-            <span>{t.dashboard?.usage ?? "Usage"}</span>
+            <span>{d.usage}</span>
           </TabsTrigger>
           <TabsTrigger value="billing" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
             <Receipt size={16} weight={tab === "billing" ? "fill" : "regular"} />
-            <span>{t.dashboard?.billing ?? "Billing"}</span>
+            <span>{d.billing}</span>
           </TabsTrigger>
           <TabsTrigger value="api" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
             <Key size={16} weight={tab === "api" ? "fill" : "regular"} />
-            <span>API</span>
+            <span>{d.api}</span>
           </TabsTrigger>
           <TabsTrigger value="support" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
             <Lifebuoy size={16} weight={tab === "support" ? "fill" : "regular"} />
-            <span>{t.dashboard?.support ?? "Support"}</span>
+            <span>{d.support}</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label="Token balance" value={(overview?.user.tokenBalance ?? 0).toLocaleString()} sub="Pay-as-you-go credits" Icon={Coins} />
-            <Stat label="Used last 30 days" value={(overview?.usageLast30d ?? 0).toLocaleString()} sub="Across all products" Icon={TrendUp} />
+            <Stat label={d.tokenBalance} value={(overview?.user.tokenBalance ?? 0).toLocaleString(locale)} sub={d.tokenBalanceSub} Icon={Coins} />
+            <Stat label={d.usedLast30} value={(overview?.usageLast30d ?? 0).toLocaleString(locale)} sub={d.usedSub} Icon={TrendUp} />
             <Stat
-              label="Next charge"
-              value={overview?.activeSubs[0]?.nextChargeAt ? new Date(overview.activeSubs[0].nextChargeAt).toLocaleDateString("en-PH", { day: "numeric", month: "short" }) : "—"}
-              sub={(overview?.activeSubs.length ?? 0) > 0 ? formatPHP(overview!.activeSubs.reduce((s, x) => s + x.amount, 0)) : "No active subscription"}
+              label={d.nextCharge}
+              value={overview?.activeSubs[0]?.nextChargeAt ? new Date(overview.activeSubs[0].nextChargeAt).toLocaleDateString(locale, { day: "numeric", month: "short" }) : "—"}
+              sub={(overview?.activeSubs.length ?? 0) > 0 ? formatPHP(overview!.activeSubs.reduce((s, x) => s + x.amount, 0), "PHP", locale) : d.noActiveSub}
               Icon={CalendarBlank}
             />
           </div>
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Active subscriptions</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{d.activeSubscriptions}</CardTitle></CardHeader>
             <CardContent>
               {(overview?.activeSubs.length ?? 0) === 0 ? (
                 <div className="text-sm text-muted-foreground py-4 text-center">
-                  No active subscriptions. <button className="text-accent hover:underline" onClick={() => setTab("products")}>Browse products →</button>
+                  {d.noSubscriptions} <button className="text-accent hover:underline ml-1" onClick={() => setTab("products")}>{d.browseProducts}</button>
                 </div>
               ) : (
                 <ul className="divide-y">
                   {overview!.activeSubs.map(s => (
-                    <li key={s.id} className="py-3 flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{s.productName}</p>
+                    <li key={s.id} className="py-3 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{s.productName}</p>
                         <p className="text-xs text-muted-foreground">
-                          {s.billingInterval} · next {new Date(s.nextChargeAt).toLocaleDateString()}
+                          {s.billingInterval} · {d.next} {new Date(s.nextChargeAt).toLocaleDateString(locale)}
                           {s.cardLast4 ? ` · ••••${s.cardLast4}` : ""}
                         </p>
                       </div>
-                      <span className="font-mono text-sm">{formatPHP(s.amount, s.currency)}</span>
+                      <span className="font-mono text-sm shrink-0">{formatPHP(s.amount, s.currency, locale)}</span>
                     </li>
                   ))}
                 </ul>
@@ -238,21 +252,21 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Recent orders</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{d.recentOrders}</CardTitle></CardHeader>
             <CardContent>
               {(overview?.recentOrders.length ?? 0) === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">No orders yet.</p>
+                <p className="text-sm text-muted-foreground py-4 text-center">{d.noOrdersYet}</p>
               ) : (
                 <ul className="divide-y">
                   {overview!.recentOrders.map(o => (
-                    <li key={o.id} className="py-3 flex items-center justify-between text-sm">
-                      <div>
+                    <li key={o.id} className="py-3 flex items-center justify-between text-sm gap-3">
+                      <div className="min-w-0">
                         <p className="font-mono text-xs">{o.id.slice(0, 8).toUpperCase()}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleString(locale)}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-mono">{formatPHP(o.total, o.currency)}</p>
-                        <span className={`text-xs ${o.status === "paid" ? "text-emerald-600" : o.status === "pending" ? "text-amber-600" : "text-muted-foreground"}`}>{o.status}</span>
+                      <div className="text-right shrink-0">
+                        <p className="font-mono">{formatPHP(o.total, o.currency, locale)}</p>
+                        <span className={`text-xs ${statusClass(o.status)}`}>{statusLabel(o.status)}</span>
                       </div>
                     </li>
                   ))}
@@ -263,20 +277,20 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
         </TabsContent>
 
         <TabsContent value="products" className="space-y-4">
-          <h2 className="font-semibold">AI products</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <h2 className="font-semibold">{d.myAiProducts}</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {products.filter(p => p.type === "service").map(p => (
-              <Card key={p.id}>
-                <CardContent className="p-5">
+              <Card key={p.id} className="h-full flex flex-col">
+                <CardContent className="p-5 flex flex-col flex-1">
                   <h3 className="font-semibold">{p.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.description}</p>
-                  <p className="mt-3 font-semibold">{formatPHP(p.basePrice, p.currency)} <span className="text-xs font-normal text-muted-foreground">/ mo</span></p>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2 flex-1">{p.description}</p>
+                  <p className="mt-3 font-semibold">{formatPHP(p.basePrice, p.currency, locale)} <span className="text-xs font-normal text-muted-foreground">/ {language === "zh" ? "月" : "mo"}</span></p>
                   <div className="mt-3">
                     {subscribed.has(p.id) ? (
-                      <span className="text-xs text-emerald-600 font-medium">✓ Subscribed</span>
+                      <span className="text-xs text-emerald-600 font-medium">{d.subscribed}</span>
                     ) : (
-                      <Button size="sm" disabled={busy === p.id} onClick={() => startCheckout(p.id, true)}>
-                        {busy === p.id ? "Redirecting…" : "Subscribe monthly"}
+                      <Button size="sm" disabled={busy === p.id} onClick={() => startCheckout(p.id, true)} className="w-full sm:w-auto">
+                        {busy === p.id ? d.redirecting : d.subscribeMonthly}
                       </Button>
                     )}
                   </div>
@@ -285,17 +299,17 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
             ))}
           </div>
 
-          <h2 className="font-semibold mt-6">Token packs</h2>
+          <h2 className="font-semibold mt-6">{d.tokenPacks}</h2>
           <div className="grid sm:grid-cols-3 gap-3">
             {products.filter(p => p.type === "token").map(p => (
               <Card key={p.id}>
                 <CardContent className="p-5 text-center">
                   <h3 className="font-semibold">{p.name}</h3>
-                  <p className="mt-2 text-xl font-semibold">{formatPHP(p.basePrice, p.currency)}</p>
-                  <p className="text-xs text-muted-foreground">{(p.tokenAmount ?? 0).toLocaleString()} tokens</p>
+                  <p className="mt-2 text-xl font-semibold">{formatPHP(p.basePrice, p.currency, locale)}</p>
+                  <p className="text-xs text-muted-foreground">{(p.tokenAmount ?? 0).toLocaleString(locale)} {d.tokens}</p>
                   <div className="mt-3">
-                    <Button size="sm" variant="outline" disabled={busy === p.id} onClick={() => startCheckout(p.id, false)}>
-                      {busy === p.id ? "Redirecting…" : "Buy"}
+                    <Button size="sm" variant="outline" disabled={busy === p.id} onClick={() => startCheckout(p.id, false)} className="w-full">
+                      {busy === p.id ? d.redirecting : d.buy}
                     </Button>
                   </div>
                 </CardContent>
@@ -306,34 +320,34 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
 
         <TabsContent value="usage">
           <Card>
-            <CardHeader><CardTitle className="text-base">Last 30 days</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{d.last30Days}</CardTitle></CardHeader>
             <CardContent>
-              <p className="text-3xl font-semibold">{(overview?.usageLast30d ?? 0).toLocaleString()} <span className="text-sm font-normal text-muted-foreground">tokens</span></p>
-              <p className="text-xs text-muted-foreground mt-3">Detailed per-day chart ships in the next iteration.</p>
+              <p className="text-3xl font-semibold">{(overview?.usageLast30d ?? 0).toLocaleString(locale)} <span className="text-sm font-normal text-muted-foreground">{d.tokens}</span></p>
+              <p className="text-xs text-muted-foreground mt-3">{d.chartSoon}</p>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="billing" className="space-y-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">Subscriptions</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{d.subscriptions}</CardTitle></CardHeader>
             <CardContent>
               {subs.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">No subscriptions.</p>
+                <p className="text-sm text-muted-foreground py-4 text-center">{d.noSubs}</p>
               ) : (
                 <ul className="divide-y">
                   {subs.map(s => (
                     <li key={s.id} className="py-3 flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-sm">{s.productName}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{s.productName}</p>
                         <p className="text-xs text-muted-foreground">
-                          {s.status} · {s.billingInterval} · {formatPHP(s.amount, s.currency)}
+                          <span className={statusClass(s.status)}>{s.status}</span> · {s.billingInterval} · {formatPHP(s.amount, s.currency, locale)}
                           {s.cardLast4 ? ` · ••••${s.cardLast4}` : ""}
                         </p>
                       </div>
                       {s.status === "active" && (
-                        <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => cancelSub(s.id, s.productName ?? "this plan")}>
-                          Cancel
+                        <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive shrink-0" onClick={() => cancelSub(s.id, s.productName ?? "")}>
+                          {d.cancel}
                         </Button>
                       )}
                     </li>
@@ -344,21 +358,21 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Orders</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{d.orders}</CardTitle></CardHeader>
             <CardContent>
               {orders.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">No orders yet.</p>
+                <p className="text-sm text-muted-foreground py-4 text-center">{d.noOrdersYet}</p>
               ) : (
                 <ul className="divide-y">
                   {orders.map(o => (
-                    <li key={o.id} className="py-3 flex items-center justify-between text-sm">
-                      <div>
+                    <li key={o.id} className="py-3 flex items-center justify-between text-sm gap-3">
+                      <div className="min-w-0">
                         <p className="font-mono text-xs">{o.id.slice(0, 8).toUpperCase()}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleString(locale)}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-mono">{formatPHP(o.total, o.currency)}</p>
-                        <span className={`text-xs ${o.status === "paid" ? "text-emerald-600" : o.status === "pending" ? "text-amber-600" : "text-muted-foreground"}`}>{o.status}</span>
+                      <div className="text-right shrink-0">
+                        <p className="font-mono">{formatPHP(o.total, o.currency, locale)}</p>
+                        <span className={`text-xs ${statusClass(o.status)}`}>{statusLabel(o.status)}</span>
                       </div>
                     </li>
                   ))}
@@ -371,7 +385,7 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
         <TabsContent value="api">
           <Card>
             <CardContent className="p-6 text-center text-sm text-muted-foreground">
-              API key generation ships in the next iteration. Reach out via Support if you need a key now.
+              {d.apiSoon}
             </CardContent>
           </Card>
         </TabsContent>
@@ -379,9 +393,9 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
         <TabsContent value="support">
           <Card>
             <CardContent className="p-6 text-center text-sm text-muted-foreground">
-              For urgent issues email <a href="mailto:support@danica.it" className="text-accent hover:underline">support@danica.it</a>.
+              {d.supportInfo} <a href="mailto:support@danica.it" className="text-accent hover:underline">support@danica.it</a>.
               <br />
-              Full ticketing UI ships in the next iteration.
+              {d.supportSoon}
             </CardContent>
           </Card>
         </TabsContent>

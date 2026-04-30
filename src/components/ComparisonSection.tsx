@@ -821,12 +821,12 @@ export function ComparisonSection() {
                         </div>
                         <div className="text-right">
                           <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold">${price}</span>
+                            <span className="text-2xl font-bold">₱{price}</span>
                             <span className="text-xs text-muted-foreground">{period}</span>
                           </div>
                           {isYearly && (
                             <p className="text-[10px] text-muted-foreground">
-                              ${Math.round(price / 12)}{t.compare.perMonth}
+                              ₱{Math.round(price / 12)}{t.compare.perMonth}
                             </p>
                           )}
                         </div>
@@ -936,31 +936,44 @@ export function ComparisonSection() {
                         >
                           <CardContent className="pt-0">
                             <div className="space-y-3">
+                              {/* Column headers: which products are being compared */}
+                              <div
+                                className="grid gap-2 pb-2 border-b"
+                                style={{ gridTemplateColumns: `1fr repeat(${selectedProducts.length}, minmax(0, 1fr))` }}
+                              >
+                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground self-end">
+                                  {t.compare.featureLabel ?? (language === 'zh' ? '功能' : 'Feature')}
+                                </span>
+                                {selectedProducts.map(productId => {
+                                  const product = products.find(p => p.id === productId)
+                                  if (!product) return null
+                                  const Icon = product.icon
+                                  const productName = t.compare.products?.[productId as keyof typeof t.compare.products] ?? product.id
+                                  return (
+                                    <div key={productId} className="flex flex-col items-center gap-1">
+                                      <Icon size={18} weight="duotone" className="text-accent" />
+                                      <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">{productName}</span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
                               {section.features.map((feature) => {
                                 const featureName = t.compare.featureNames[feature.nameKey as keyof typeof t.compare.featureNames]
-                                
                                 return (
-                                  <div key={feature.nameKey} className="space-y-2">
-                                    <p className="text-xs font-medium">{featureName}</p>
-                                    <div className="grid grid-cols-3 gap-2">
-                                      {selectedProducts.map((productId) => {
-                                        const product = products.find(p => p.id === productId)!
-                                        const value = feature[productId as keyof typeof feature]
-                                        const Icon = product.icon
-                                        
-                                        return (
-                                          <div
-                                            key={productId}
-                                            className="flex flex-col items-center gap-1 p-2 bg-muted/30 rounded-lg"
-                                          >
-                                            <Icon size={16} weight="duotone" className="text-accent" />
-                                            <div className="flex items-center justify-center min-h-[20px]">
-                                              {renderValue(value)}
-                                            </div>
-                                          </div>
-                                        )
-                                      })}
-                                    </div>
+                                  <div
+                                    key={feature.nameKey}
+                                    className="grid gap-2 items-center py-1"
+                                    style={{ gridTemplateColumns: `1fr repeat(${selectedProducts.length}, minmax(0, 1fr))` }}
+                                  >
+                                    <span className="text-xs font-medium">{featureName}</span>
+                                    {selectedProducts.map(productId => {
+                                      const value = feature[productId as keyof typeof feature]
+                                      return (
+                                        <div key={productId} className="flex items-center justify-center min-h-[24px] bg-muted/30 rounded">
+                                          {renderValue(value)}
+                                        </div>
+                                      )
+                                    })}
                                   </div>
                                 )
                               })}

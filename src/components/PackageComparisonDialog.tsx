@@ -74,7 +74,7 @@ export function PackageComparisonDialog({
                           </Badge>
                         )}
                         <div className="font-semibold">{pkg.name[language]}</div>
-                        <div className="text-2xl font-bold text-primary">${pkg.price}</div>
+                        <div className="text-2xl font-bold text-primary">₱{pkg.price}</div>
                         <div className="text-xs text-muted-foreground">
                           {(pkg.tokens / 1000).toLocaleString()}K tokens
                         </div>
