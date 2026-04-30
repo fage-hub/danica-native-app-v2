@@ -85,7 +85,7 @@ type Product = {
 }
 
 function formatPHP(centavos: number, currency = "PHP", locale = "en-PH") {
-  return new Intl.NumberFormat(locale, { style: "currency", currency, minimumFractionDigits: 2 }).format(centavos / 100)
+  return new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "narrowSymbol", minimumFractionDigits: 2 }).format(centavos / 100)
 }
 
 export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {

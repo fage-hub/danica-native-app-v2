@@ -443,7 +443,7 @@ const getFeatureComparison = (): FeatureComparison[] => [
 ]
 
 export function ComparisonSection() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [selectedProducts, setSelectedProducts] = useState<string[]>(['ai-assistant', 'content-gen'])
   const [selectedProduct, setSelectedProduct] = useState('ai-assistant')
   const [isYearly, setIsYearly] = useState(false)
