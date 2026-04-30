@@ -95,7 +95,7 @@ export function AboutSection() {
         <h2 className="text-lg font-semibold mb-4" style={{ letterSpacing: '-0.01em' }}>
           {t.about.achievementsTitle}
         </h2>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
           {achievements.map((achievement, index) => {
             const Icon = achievement.icon
             const label = t.about.achievements[achievement.key as keyof typeof t.about.achievements]
@@ -130,7 +130,7 @@ export function AboutSection() {
         <h2 className="text-lg font-semibold mb-4" style={{ letterSpacing: '-0.01em' }}>
           {t.about.valuesTitle}
         </h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {values.map((value, index) => {
             const Icon = value.icon
             const valueData = t.about.values[value.key as keyof typeof t.about.values]
@@ -166,7 +166,7 @@ export function AboutSection() {
         <h2 className="text-lg font-semibold mb-4" style={{ letterSpacing: '-0.01em' }}>
           {t.about.expertsTitle}
         </h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {teamMembers.map((member, index) => {
             const memberData = t.about.team[member.key as keyof typeof t.about.team]
             return (

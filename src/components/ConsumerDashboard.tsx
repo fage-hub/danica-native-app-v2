@@ -172,13 +172,31 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
       </div>
 
       <Tabs value={tab} onValueChange={v => setTab(v as typeof tab)}>
-        <TabsList className="grid grid-cols-6 w-full">
-          <TabsTrigger value="overview"><House size={16} /></TabsTrigger>
-          <TabsTrigger value="products"><Package size={16} /></TabsTrigger>
-          <TabsTrigger value="usage"><ChartLine size={16} /></TabsTrigger>
-          <TabsTrigger value="billing"><Receipt size={16} /></TabsTrigger>
-          <TabsTrigger value="api"><Key size={16} /></TabsTrigger>
-          <TabsTrigger value="support"><Lifebuoy size={16} /></TabsTrigger>
+        <TabsList className="grid grid-cols-6 w-full h-auto p-1">
+          <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
+            <House size={16} weight={tab === "overview" ? "fill" : "regular"} />
+            <span>{t.dashboard?.overview ?? "Overview"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="products" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
+            <Package size={16} weight={tab === "products" ? "fill" : "regular"} />
+            <span>{t.dashboard?.products ?? "Products"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="usage" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
+            <ChartLine size={16} weight={tab === "usage" ? "fill" : "regular"} />
+            <span>{t.dashboard?.usage ?? "Usage"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="billing" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
+            <Receipt size={16} weight={tab === "billing" ? "fill" : "regular"} />
+            <span>{t.dashboard?.billing ?? "Billing"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="api" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
+            <Key size={16} weight={tab === "api" ? "fill" : "regular"} />
+            <span>API</span>
+          </TabsTrigger>
+          <TabsTrigger value="support" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-1.5 py-2 text-[11px] sm:text-xs">
+            <Lifebuoy size={16} weight={tab === "support" ? "fill" : "regular"} />
+            <span>{t.dashboard?.support ?? "Support"}</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">

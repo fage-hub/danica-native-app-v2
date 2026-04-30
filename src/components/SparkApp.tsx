@@ -50,11 +50,11 @@ export function SparkApp() {
         />
       </div>
 
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-3 right-3 sm:top-4 sm:right-4 z-50">
         <LanguageSwitcher />
       </div>
 
-      <main className="max-w-2xl mx-auto px-4 py-6 sm:px-6 relative">
+      <main className="max-w-2xl lg:max-w-5xl mx-auto px-4 pt-16 sm:pt-20 lg:pt-10 pb-28 sm:px-6 relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentTab}

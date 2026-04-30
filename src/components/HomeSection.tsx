@@ -368,7 +368,7 @@ export function HomeSection() {
         <h2 className="text-lg sm:text-xl font-semibold" style={{ letterSpacing: '-0.015em' }}>
           {t.home.ourProducts}
         </h2>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {aiProducts.map((item, index) => {
             const product = t.home.products[item.productKey]
             const status = t.home.status[item.statusKey]
@@ -437,7 +437,7 @@ export function HomeSection() {
         <h2 className="text-lg font-semibold mb-4" style={{ letterSpacing: '-0.01em' }}>
           {t.about.valuesTitle}
         </h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {values.map((value, index) => {
             const Icon = value.icon
             const valueData = t.about.values[value.key as keyof typeof t.about.values]
@@ -475,7 +475,7 @@ export function HomeSection() {
         <h2 className="text-lg font-semibold mb-4" style={{ letterSpacing: '-0.01em' }}>
           {t.about.expertsTitle}
         </h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {teamMembers.map((member, index) => {
             const memberData = t.about.team[member.key as keyof typeof t.about.team]
             return (
@@ -520,7 +520,7 @@ export function HomeSection() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.6 }}
-        className="grid grid-cols-2 gap-3"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
       >
         <motion.div
           whileHover={{ scale: 1.03, y: -3 }}

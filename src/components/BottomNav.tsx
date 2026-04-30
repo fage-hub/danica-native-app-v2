@@ -83,7 +83,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
           boxShadow: `0 0 6px ${currentTheme.glow}`
         }}
       />
-      <div className="flex items-center justify-around h-20 px-2 max-w-2xl mx-auto relative">
+      <div className="flex items-center justify-around h-20 px-2 max-w-2xl lg:max-w-5xl mx-auto relative">
         {navItems.map((item, index) => {
           const Icon = item.icon
           const isActive = activeTab === item.id
