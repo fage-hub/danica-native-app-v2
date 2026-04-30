@@ -951,7 +951,7 @@ export function ComparisonSection() {
                                   return (
                                     <div key={productId} className="flex flex-col items-center gap-1">
                                       <Icon size={18} weight="duotone" className="text-accent" />
-                                      <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">{getProductName(productId)}</span>
+                                      <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">{getProductInfo(productId)?.name ?? productId}</span>
                                     </div>
                                   )
                                 })}
