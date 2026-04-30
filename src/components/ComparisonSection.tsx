@@ -948,11 +948,10 @@ export function ComparisonSection() {
                                   const product = products.find(p => p.id === productId)
                                   if (!product) return null
                                   const Icon = product.icon
-                                  const productName = t.compare.products?.[productId as keyof typeof t.compare.products] ?? product.id
                                   return (
                                     <div key={productId} className="flex flex-col items-center gap-1">
                                       <Icon size={18} weight="duotone" className="text-accent" />
-                                      <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">{productName}</span>
+                                      <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">{getProductName(productId)}</span>
                                     </div>
                                   )
                                 })}
