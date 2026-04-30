@@ -1,5 +1,7 @@
+"use client"
+
 import { useEffect, useRef } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/spark-shim'
 
 export type NotificationSoundType = 'default' | 'success' | 'warning' | 'info' | 'critical' | 'error'
 

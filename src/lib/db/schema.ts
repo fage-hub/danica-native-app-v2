@@ -1,11 +1,11 @@
-import { pgTable, text, timestamp, integer, varchar, boolean, jsonb, primaryKey, index } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, integer, varchar, boolean, jsonb, primaryKey, index, uniqueIndex } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 const id = () => text("id").primaryKey().$defaultFn(() => crypto.randomUUID())
 
 export const users = pgTable("users", {
   id: id(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull(),
   emailVerified: timestamp("email_verified", { mode: "date" }),
   name: varchar("name", { length: 255 }),
   image: text("image"),
@@ -16,7 +16,12 @@ export const users = pgTable("users", {
   tokenBalance: integer("token_balance").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-})
+}, (t) => ({
+  // Functional unique index on lower(email) → enforces case-insensitive
+  // uniqueness at the DB level. Removes the prior `.unique()` whose constraint
+  // would let "Foo@Bar.com" + "foo@bar.com" both insert.
+  emailLowerIdx: uniqueIndex("users_email_lower_idx").on(sql`lower(${t.email})`),
+}))
 
 export const accounts = pgTable("accounts", {
   userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -82,11 +87,16 @@ export const subscriptions = pgTable("subscriptions", {
 }, (t) => ({
   userIdx: index("sub_user_idx").on(t.userId),
   nextChargeIdx: index("sub_next_charge_idx").on(t.nextChargeAt),
+  // Partial unique: a user can only have ONE active sub per product.
+  // Cancelled / past_due rows can repeat (audit history).
+  activePerProductUniqueIdx: uniqueIndex("sub_active_per_product_uniq")
+    .on(t.userId, t.productId)
+    .where(sql`${t.status} = 'active'`),
 }))
 
 export const orders = pgTable("orders", {
   id: id(),
-  userId: text("user_id").notNull().references(() => users.id),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "restrict" }),
   total: integer("total").notNull(),
   currency: varchar("currency", { length: 3 }).notNull().default("PHP"),
   status: varchar("status", { length: 20 }).notNull().default("pending"),
@@ -97,6 +107,8 @@ export const orders = pgTable("orders", {
   paidAt: timestamp("paid_at"),
 }, (t) => ({
   userIdx: index("order_user_idx").on(t.userId),
+  intentIdx: index("order_intent_idx").on(t.paymongoPaymentIntentId),
+  statusCreatedIdx: index("order_status_created_idx").on(t.status, t.createdAt),
 }))
 
 export const orderItems = pgTable("order_items", {
@@ -115,7 +127,10 @@ export const subscriptionRenewals = pgTable("subscription_renewals", {
   paymongoPaymentIntentId: text("paymongo_payment_intent_id"),
   failureReason: text("failure_reason"),
   attemptedAt: timestamp("attempted_at").notNull().defaultNow(),
-})
+}, (t) => ({
+  subIdx: index("renewal_sub_idx").on(t.subscriptionId),
+  attemptedIdx: index("renewal_attempted_idx").on(t.attemptedAt),
+}))
 
 export const usageEvents = pgTable("usage_events", {
   id: id(),
@@ -166,4 +181,36 @@ export const webhookEvents = pgTable("webhook_events", {
   payload: jsonb("payload").notNull(),
   processedAt: timestamp("processed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  processedIdx: index("we_processed_idx").on(t.processedAt),
+  typeIdx: index("we_type_idx").on(t.type),
+  createdIdx: index("we_created_idx").on(t.createdAt),
+}))
+
+// =============================================================================
+// Contact form submissions (replaces fake setTimeout(1500) submissions)
+// =============================================================================
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: id(),
+  userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  interest: varchar("interest", { length: 100 }),
+  message: text("message").notNull(),
+  ipHash: varchar("ip_hash", { length: 64 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  emailIdx: index("contact_email_idx").on(t.email),
+  createdIdx: index("contact_created_idx").on(t.createdAt),
+}))
+
+// =============================================================================
+// Rate limit buckets (token-bucket-ish counter)
+// =============================================================================
+export const rateLimitBuckets = pgTable("rate_limit_buckets", {
+  // Composite key: <bucket-name>:<identifier-hash>
+  key: varchar("key", { length: 200 }).primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStart: timestamp("window_start").notNull().defaultNow(),
 })

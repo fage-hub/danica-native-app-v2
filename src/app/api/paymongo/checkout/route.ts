@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import crypto from "node:crypto"
 import { z } from "zod"
-import { eq, inArray } from "drizzle-orm"
+import { eq, inArray, and } from "drizzle-orm"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
-import { products, orders, orderItems } from "@/lib/db/schema"
+import { products, orders, orderItems, subscriptions } from "@/lib/db/schema"
 import { paymongo, PAYMENT_METHODS_ALL, PayMongoError } from "@/lib/paymongo/client"
+import { consume } from "@/lib/rate-limit"
 
 export const runtime = "nodejs"
 
@@ -17,10 +19,24 @@ const schema = z.object({
   billingInterval: z.enum(["monthly", "quarterly", "yearly"]).optional(),
 })
 
+function obfuscateUserId(userId: string): string {
+  // PayMongo metadata stores plaintext — don't leak our internal UUIDs.
+  // SHA-256 prefix is enough for support / debugging round-trips.
+  return crypto.createHash("sha256").update(userId).digest("hex").slice(0, 16)
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 })
+  }
+
+  const rl = await consume("checkout", session.user.id, 30, 60)
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "rate_limited", retryAfterSeconds: rl.retryAfterSeconds },
+      { status: 429 },
+    )
   }
 
   const body = await req.json().catch(() => null)
@@ -44,6 +60,28 @@ export async function POST(req: NextRequest) {
   const currency = dbProducts[0].currency
   if (!dbProducts.every(p => p.currency === currency)) {
     return NextResponse.json({ error: "mixed_currencies_not_allowed" }, { status: 400 })
+  }
+
+  // Subscriptions only make sense for service-type products. Reject token / bundle.
+  if (isSubscription) {
+    const product = productMap.get(items[0].productId)!
+    if (product.type !== "service") {
+      return NextResponse.json(
+        { error: "subscription_unsupported_for_product_type", productType: product.type },
+        { status: 400 },
+      )
+    }
+    // Block double-subscribe to the same active product.
+    const existing = await db.query.subscriptions.findFirst({
+      where: and(
+        eq(subscriptions.userId, session.user.id),
+        eq(subscriptions.productId, items[0].productId),
+        eq(subscriptions.status, "active"),
+      ),
+    })
+    if (existing) {
+      return NextResponse.json({ error: "already_subscribed" }, { status: 409 })
+    }
   }
 
   let total = 0
@@ -81,7 +119,14 @@ export async function POST(req: NextRequest) {
     unitPrice: productMap.get(it.productId)!.basePrice,
   })))
 
-  const appUrl = process.env.APP_URL ?? new URL(req.url).origin
+  // No more silent fallback — APP_URL must be set so success/cancel URLs
+  // can't be poisoned by a spoofed Host header.
+  const appUrl = process.env.APP_URL
+  if (!appUrl) {
+    console.error("[checkout] APP_URL not set — cannot create checkout session safely")
+    return NextResponse.json({ error: "misconfigured" }, { status: 500 })
+  }
+
   try {
     const checkout = await paymongo.createCheckoutSession({
       lineItems,
@@ -93,7 +138,7 @@ export async function POST(req: NextRequest) {
       description: isSubscription ? `${interval} subscription` : "Danica purchase",
       metadata: {
         orderId: order.id,
-        userId: session.user.id,
+        userRef: obfuscateUserId(session.user.id),
         ...(isSubscription ? { subscription: "true", billingInterval: interval! } : {}),
       },
     })
@@ -110,7 +155,11 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (err instanceof PayMongoError) {
       console.error("paymongo checkout failed:", err.errors)
-      return NextResponse.json({ error: "paymongo_failed", detail: err.message }, { status: 502 })
+      // Don't echo PayMongo's internal error messages — could leak config.
+      return NextResponse.json(
+        { error: "payment_provider_error", code: err.errors[0]?.code ?? "unknown" },
+        { status: 502 },
+      )
     }
     throw err
   }

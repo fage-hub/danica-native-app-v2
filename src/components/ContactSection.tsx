@@ -28,7 +28,29 @@ export function ContactSection() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({}))
+        if (res.status === 429) {
+          toast.error('Please wait a moment before trying again.')
+        } else {
+          toast.error('Could not send message', {
+            description: typeof error === 'string' ? error : 'Please try again later.',
+          })
+        }
+        setIsSubmitting(false)
+        return
+      }
+    } catch {
+      toast.error('Network error', { description: 'Check your connection.' })
+      setIsSubmitting(false)
+      return
+    }
 
     setIsSubmitting(false)
     setSubmitted(true)

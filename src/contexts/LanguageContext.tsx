@@ -1,4 +1,6 @@
-import { createContext, useContext, ReactNode } from 'react'
+"use client"
+
+import { createContext, useContext, useMemo, ReactNode } from 'react'
 import { useKV } from '@/lib/spark-shim'
 import { Language, getTranslation } from '@/lib/i18n'
 
@@ -13,11 +15,21 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useKV<Language>('app-language', 'zh')
   const currentLanguage = language || 'zh'
-  
-  const t = getTranslation(currentLanguage)
+
+  // Stable context value — without useMemo every consumer re-renders on every
+  // parent render because the {language, setLanguage, t} object identity
+  // changes each time.
+  const value = useMemo(
+    () => ({
+      language: currentLanguage,
+      setLanguage,
+      t: getTranslation(currentLanguage),
+    }),
+    [currentLanguage, setLanguage],
+  )
 
   return (
-    <LanguageContext.Provider value={{ language: currentLanguage, setLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   )

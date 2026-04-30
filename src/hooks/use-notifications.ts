@@ -1,5 +1,7 @@
+"use client"
+
 import { useState, useEffect, useCallback } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/spark-shim'
 import { useNotificationSound, type NotificationSoundType } from './use-notification-sound'
 
 export type NotificationType = 'project' | 'invoice' | 'ticket' | 'system'

@@ -52,7 +52,13 @@ export function SparkApp() {
 
       <TopBar />
 
-      <main className="max-w-2xl lg:max-w-5xl mx-auto px-4 py-6 pb-28 sm:px-6 relative">
+      <main
+        className="max-w-2xl lg:max-w-5xl mx-auto px-4 py-6 sm:px-6 relative"
+        style={{
+          // 80px (nav height) + safe-area-inset-bottom for iOS home indicator
+          paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px) + 16px)',
+        }}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={currentTab}
