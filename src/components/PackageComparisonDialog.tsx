@@ -1,4 +1,5 @@
 "use client"
+import { formatTokens } from '@/lib/utils'
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
@@ -76,7 +77,7 @@ export function PackageComparisonDialog({
                         <div className="font-semibold">{pkg.name[language]}</div>
                         <div className="text-2xl font-bold text-primary">₱{pkg.price}</div>
                         <div className="text-xs text-muted-foreground">
-                          {(pkg.tokens / 1000).toLocaleString()}K tokens
+                          {formatTokens(pkg.tokens, language)} tokens
                         </div>
                         {pkg.discount && (
                           <Badge variant="outline" className="text-accent border-accent text-xs">

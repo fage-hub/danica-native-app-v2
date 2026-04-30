@@ -17,6 +17,7 @@ import {
   House,
 } from "@phosphor-icons/react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { formatTokens } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -306,7 +307,7 @@ export function ConsumerDashboard({ onLogout }: { onLogout: () => void }) {
                 <CardContent className="p-5 text-center">
                   <h3 className="font-semibold">{p.name}</h3>
                   <p className="mt-2 text-xl font-semibold">{formatPHP(p.basePrice, p.currency, locale)}</p>
-                  <p className="text-xs text-muted-foreground">{(p.tokenAmount ?? 0).toLocaleString(locale)} {d.tokens}</p>
+                  <p className="text-xs text-muted-foreground">{formatTokens(p.tokenAmount ?? 0, language)} {d.tokens}</p>
                   <div className="mt-3">
                     <Button size="sm" variant="outline" disabled={busy === p.id} onClick={() => startCheckout(p.id, false)} className="w-full">
                       {busy === p.id ? d.redirecting : d.buy}

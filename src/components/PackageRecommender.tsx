@@ -1,4 +1,5 @@
 "use client"
+import { formatTokens } from '@/lib/utils'
 
 import { spark } from '@/lib/spark-shim'
 import { useState } from 'react'
@@ -292,7 +293,7 @@ Only recommend packages that exist in the list above. Focus on matching the user
                       </span>
                     </div>
                     <CardDescription className="mt-1">
-                      {(recommendation.tokens / 1000).toLocaleString()}K tokens
+                      {formatTokens(recommendation.tokens, language)} tokens
                     </CardDescription>
                   </div>
 
@@ -419,7 +420,7 @@ Only recommend packages that exist in the list above. Focus on matching the user
                           </span>
                         </div>
                         <CardDescription className="mt-1">
-                          {(pkg.tokens / 1000).toLocaleString()}K tokens
+                          {formatTokens(pkg.tokens, language)} tokens
                         </CardDescription>
                       </div>
 

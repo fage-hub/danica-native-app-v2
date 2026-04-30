@@ -1,4 +1,5 @@
 "use client"
+import { formatTokens } from '@/lib/utils'
 
 import { spark } from '@/lib/spark-shim'
 import { useState } from 'react'
@@ -772,7 +773,7 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                         {bundle.tokensIncluded && (
                           <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
                             <Sparkle size={12} weight="fill" className="text-accent" />
-                            {(bundle.tokensIncluded / 1000).toLocaleString()}K tokens
+                            {formatTokens(bundle.tokensIncluded, language)} tokens
                           </div>
                         )}
                       </CardHeader>
@@ -844,7 +845,7 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                         {bundle.tokensIncluded && (
                           <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
                             <Sparkle size={12} weight="fill" className="text-accent" />
-                            {(bundle.tokensIncluded / 1000).toLocaleString()}K tokens
+                            {formatTokens(bundle.tokensIncluded, language)} tokens
                           </div>
                         )}
                       </CardHeader>
@@ -917,7 +918,7 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                           {bundle.tokensIncluded && (
                             <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
                               <Sparkle size={12} weight="fill" className="text-accent" />
-                              {(bundle.tokensIncluded / 1000).toLocaleString()}K tokens
+                              {formatTokens(bundle.tokensIncluded, language)} tokens
                             </div>
                           )}
                         </CardHeader>
@@ -1078,7 +1079,7 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                             </span>
                           </div>
                           <div className="text-xs mt-1 text-muted-foreground">
-                            {(pkg.tokens / 1000).toLocaleString()}K tokens
+                            {formatTokens(pkg.tokens, language)} tokens
                           </div>
                         </CardDescription>
                       </CardHeader>
@@ -1157,7 +1158,7 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                             </span>
                           </div>
                           <div className="text-xs mt-1 text-muted-foreground">
-                            {(pkg.tokens / 1000).toLocaleString()}K tokens
+                            {formatTokens(pkg.tokens, language)} tokens
                           </div>
                         </CardDescription>
                       </CardHeader>
@@ -1237,7 +1238,7 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
                               </span>
                             </div>
                             <div className="text-xs mt-1 text-muted-foreground">
-                              {(pkg.tokens / 1000).toLocaleString()}K tokens
+                              {formatTokens(pkg.tokens, language)} tokens
                             </div>
                           </CardDescription>
                         </CardHeader>
