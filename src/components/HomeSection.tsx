@@ -579,7 +579,7 @@ export function HomeSection() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.7 }}
-        className="grid gap-3"
+        className="grid gap-3 lg:grid-cols-3 lg:gap-4"
       >
         {[
           { icon: EnvelopeSimple, label: t.contact.email, value: t.contact.contactInfo.emailValue },
