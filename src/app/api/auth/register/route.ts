@@ -39,11 +39,11 @@ export async function POST(req: NextRequest) {
 
   const passwordHash = await hash(password, 12)
 
-  // Insert and let the DB unique-on-lower(email) constraint reject dupes
-  // atomically; no TOCTOU window between findFirst + insert.
-  let inserted: Array<{ id: string; email: string }>
+  // Atomic insert. The unique index is on lower(email), so we catch the
+  // 23505 constraint violation rather than using onConflictDoNothing(target)
+  // (which expects a column-level unique, not a functional one).
   try {
-    inserted = await db
+    const inserted = await db
       .insert(users)
       .values({
         email: emailLower,
@@ -52,15 +52,19 @@ export async function POST(req: NextRequest) {
         company: company || null,
         phone: phone || null,
       })
-      .onConflictDoNothing({ target: users.email })
       .returning({ id: users.id, email: users.email })
+
+    if (inserted.length === 0) {
+      return NextResponse.json({ error: "internal" }, { status: 500 })
+    }
+    return NextResponse.json({ id: inserted[0].id, email: inserted[0].email }, { status: 201 })
   } catch (err) {
+    // Postgres unique-violation = 23505. postgres-js exposes it as `.code`.
+    const code = (err as { code?: string })?.code
+    if (code === "23505") {
+      return NextResponse.json({ error: "email_already_registered" }, { status: 409 })
+    }
     console.error("[register] insert failed:", err)
     return NextResponse.json({ error: "internal" }, { status: 500 })
   }
-
-  if (inserted.length === 0) {
-    return NextResponse.json({ error: "email_already_registered" }, { status: 409 })
-  }
-  return NextResponse.json({ id: inserted[0].id, email: inserted[0].email }, { status: 201 })
 }
