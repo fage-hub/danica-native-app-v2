@@ -167,7 +167,7 @@ Format with emojis and keep it concise. Act as a professional sentiment analysis
           damping: 28,
           delay: 0.05
         }}
-        className="sticky top-0 bg-background/98 backdrop-blur-md z-10 pb-4 pt-2 border-b border-transparent"
+        className="sticky top-14 sm:top-16 lg:top-4 bg-background/98 backdrop-blur-md z-10 pb-4 pt-2 border-b border-transparent"
       >
         <motion.h1 
           className="text-2xl sm:text-3xl font-bold mb-2" 

@@ -163,7 +163,7 @@ export function ProductBrowseSection() {
 
   return (
     <div className="space-y-6 pb-24">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-lg pb-4 border-b border-border/50">
+      <div className="sticky top-14 sm:top-16 lg:top-4 z-10 bg-background/95 backdrop-blur-lg pb-4 border-b border-border/50">
         <div className="space-y-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">

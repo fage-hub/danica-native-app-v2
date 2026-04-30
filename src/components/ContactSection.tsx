@@ -57,7 +57,7 @@ export function ContactSection() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 bg-background/95 backdrop-blur-sm z-10 pb-4 pt-2"
+        className="sticky top-14 sm:top-16 lg:top-4 bg-background/95 backdrop-blur-sm z-10 pb-4 pt-2"
       >
         <h1 className="text-2xl font-bold" style={{ letterSpacing: '-0.02em' }}>
           {t.contact.title}
@@ -108,7 +108,7 @@ export function ContactSection() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="grid gap-3"
+        className="grid gap-3 lg:grid-cols-3 lg:gap-4"
       >
         {[
           { icon: EnvelopeSimple, label: t.contact.email, value: t.contact.contactInfo.emailValue },
