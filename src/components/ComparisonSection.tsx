@@ -548,7 +548,7 @@ export function ComparisonSection() {
           damping: 26,
           delay: 0.05
         }}
-        className="sticky top-14 sm:top-16 lg:top-4 bg-background/95 backdrop-blur-sm z-10 pb-4 pt-2"
+        className="sticky top-14 bg-background/95 backdrop-blur-sm z-10 pb-4 pt-2"
       >
         <motion.h1 
           className="text-2xl font-bold" 
