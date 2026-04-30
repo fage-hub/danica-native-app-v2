@@ -59,9 +59,23 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ id: inserted[0].id, email: inserted[0].email }, { status: 201 })
   } catch (err) {
-    // Postgres unique-violation = 23505. postgres-js exposes it as `.code`.
-    const code = (err as { code?: string })?.code
-    if (code === "23505") {
+    // Drizzle wraps postgres-js errors. Walk the cause chain looking for
+    // SQLSTATE 23505 (unique violation), and also pattern-match the message
+    // for `users_email_lower_idx` to be defensive against version drift.
+    type Errish = { code?: string; constraint_name?: string; message?: string; cause?: unknown }
+    function walk(e: unknown): boolean {
+      let cur: Errish | null = e as Errish
+      let depth = 0
+      while (cur && depth < 5) {
+        if (cur.code === "23505") return true
+        if (cur.constraint_name === "users_email_lower_idx") return true
+        if (typeof cur.message === "string" && cur.message.includes("users_email_lower_idx")) return true
+        cur = cur.cause as Errish | null
+        depth++
+      }
+      return false
+    }
+    if (walk(err)) {
       return NextResponse.json({ error: "email_already_registered" }, { status: 409 })
     }
     console.error("[register] insert failed:", err)
