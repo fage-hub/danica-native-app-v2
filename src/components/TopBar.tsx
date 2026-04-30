@@ -12,8 +12,8 @@ export function TopBar() {
         <div className="flex items-center gap-2 font-semibold tracking-tight">
           <Sparkle size={18} weight="fill" className="text-accent" />
           <span>
-            <span className="text-accent">Danica</span>
-            <span className="hidden xs:inline ml-1">IT</span>
+            <span className="text-accent">Danica</span>{" "}
+            <span>IT</span>
           </span>
         </div>
         <LanguageSwitcher />
