@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import crypto from "node:crypto"
 import { z } from "zod"
 import { eq, inArray, and } from "drizzle-orm"
-import { auth } from "@/auth"
+import { resolveUser } from "@/lib/native-auth"
 import { db } from "@/lib/db"
 import { products, orders, orderItems, subscriptions } from "@/lib/db/schema"
 import { paymongo, PAYMENT_METHODS_ALL, PayMongoError } from "@/lib/paymongo/client"
@@ -26,12 +26,12 @@ function obfuscateUserId(userId: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const user = await resolveUser(req)
+  if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 })
   }
 
-  const rl = await consume("checkout", session.user.id, 30, 60)
+  const rl = await consume("checkout", user.id, 30, 60)
   if (!rl.ok) {
     return NextResponse.json(
       { error: "rate_limited", retryAfterSeconds: rl.retryAfterSeconds },
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     // Block double-subscribe to the same active product.
     const existing = await db.query.subscriptions.findFirst({
       where: and(
-        eq(subscriptions.userId, session.user.id),
+        eq(subscriptions.userId, user.id),
         eq(subscriptions.productId, items[0].productId),
         eq(subscriptions.status, "active"),
       ),
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
   const interval = isSubscription ? (billingInterval ?? "monthly") : null
 
   const [order] = await db.insert(orders).values({
-    userId: session.user.id,
+    userId: user.id,
     total,
     currency,
     status: "pending",
@@ -133,12 +133,12 @@ export async function POST(req: NextRequest) {
       paymentMethodTypes: [...PAYMENT_METHODS_ALL],
       successUrl: `${appUrl}/portal/dashboard/billing?order=${order.id}&status=success`,
       cancelUrl: `${appUrl}/portal/dashboard/billing?order=${order.id}&status=cancelled`,
-      customerEmail: session.user.email,
+      customerEmail: user.email,
       referenceNumber: order.id,
       description: isSubscription ? `${interval} subscription` : "Danica purchase",
       metadata: {
         orderId: order.id,
-        userRef: obfuscateUserId(session.user.id),
+        userRef: obfuscateUserId(user.id),
         ...(isSubscription ? { subscription: "true", billingInterval: interval! } : {}),
       },
     })
