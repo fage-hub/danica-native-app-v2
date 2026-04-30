@@ -520,7 +520,7 @@ export function HomeSection() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.6 }}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        className="grid grid-cols-2 gap-3 lg:max-w-2xl lg:mx-auto"
       >
         <motion.div
           whileHover={{ scale: 1.03, y: -3 }}
@@ -616,6 +616,7 @@ export function HomeSection() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 3.1 }}
+        className="lg:max-w-2xl lg:mx-auto"
       >
         <Card>
           <CardHeader>
